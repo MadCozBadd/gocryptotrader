@@ -843,7 +843,7 @@ const (
 
 // ToString changes the ordertype to the exchange standard and returns a string
 func (o OrderType) ToString() string {
-	return fmt.Sprintf("%v", o)
+	return string(o)
 }
 
 // OrderSide enforces a standard for OrderSides across the code base
@@ -860,7 +860,7 @@ const (
 
 // ToString changes the ordertype to the exchange standard and returns a string
 func (o OrderSide) ToString() string {
-	return fmt.Sprintf("%v", o)
+	return string(o)
 }
 
 // SetAPIURL sets configuration API URL for an exchange
