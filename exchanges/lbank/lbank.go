@@ -81,10 +81,6 @@ func (l *Lbank) SetDefaults() {
 	l.APIUrlDefault = lbankAPIURL
 	l.APIUrl = l.APIUrlDefault
 	l.WebsocketInit()
-	l.WebsocketURL = lbankwsurl
-	l.Websocket.Functionality = exchange.WebsocketTickerSupported |
-		exchange.WebsocketTradeDataSupported |
-		exchange.WebsocketKlineSupported
 }
 
 // Setup takes in the supplied exchange configuration details and sets params
@@ -120,17 +116,6 @@ func (l *Lbank) Setup(exch *config.ExchangeConfig) {
 			log.Fatal(err)
 		}
 		err = l.SetClientProxyAddress(exch.ProxyAddress)
-		if err != nil {
-			log.Fatal(err)
-		}
-		err = l.WebsocketSetup(l.WsConnect,
-			l.Subscribe,
-			l.Unsubscribe,
-			exch.Name,
-			exch.Websocket,
-			exch.Verbose,
-			lbankwsurl,
-			exch.WebsocketURL)
 		if err != nil {
 			log.Fatal(err)
 		}
