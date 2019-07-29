@@ -15,17 +15,17 @@ import (
 const (
 	testAPIKey              = ""
 	testAPISecret           = ""
-	canManipulateRealOrders = false
+	canManipulateRealOrders = true
 )
 
 var l Lbank
 var setupRan bool
-var moo sync.Mutex
+var m sync.Mutex
 
 func TestSetup(t *testing.T) {
 	t.Parallel()
-	moo.Lock()
-	defer moo.Unlock()
+	m.Lock()
+	defer m.Unlock()
 	if setupRan {
 		return
 	}
@@ -206,6 +206,22 @@ func TestGetPairInfo(t *testing.T) {
 	}
 }
 
+func TestOrderTransactionDetails(t *testing.T) {
+	TestSetup(t)
+	_, err := l.OrderTransactionDetails("eth_btc", "24f7ce27-af1d-4dca-a8c1-ef1cbeec1b23")
+	if err != nil {
+		t.Errorf("couldnt get transaction details: %v", err)
+	}
+}
+
+func TestTransactionHistory(t *testing.T) {
+	TestSetup(t)
+	_, err := l.TransactionHistory("btc_usdt", "", "", "", "", "", "")
+	if err != nil {
+		t.Errorf("couldnt get transaction history: %v", err)
+	}
+}
+
 func TestGetOpenOrders(t *testing.T) {
 	TestSetup(t)
 	if !areTestAPIKeysSet() {
@@ -228,8 +244,7 @@ func TestUSD2RMBRate(t *testing.T) {
 
 func TestGetWithdrawConfig(t *testing.T) {
 	TestSetup(t)
-	a, err := l.GetWithdrawConfig("eth")
-	t.Log(a)
+	_, err := l.GetWithdrawConfig("eth")
 	if err != nil {
 		t.Errorf("unable to get withdraw config: %v", err)
 	}
@@ -336,7 +351,6 @@ func TestGetOrderInfo(t *testing.T) {
 
 func TestGetAllOpenOrderID(t *testing.T) {
 	TestSetup(t)
-	l.Verbose = true
 	if !areTestAPIKeysSet() {
 		t.Skip("API keys required but not set, skipping test")
 	}
