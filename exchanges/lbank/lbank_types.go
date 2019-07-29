@@ -115,12 +115,12 @@ type PairInfoResponse struct {
 
 // OpenOrderResponse stores information about the opening orders
 type OpenOrderResponse struct {
-	PageLength int64           `json:"page_length"`
-	PageNumber int64           `json:"page_number"`
-	Total      string          `json:"total"`
-	Result     bool            `json:"result,string"`
-	Orders     []OrderResponse `json:"orders"`
-	ErrorCode  int64           `json:"error_code"`
+	PageLength int64       `json:"page_length"`
+	PageNumber int64       `json:"page_number"`
+	Total      string      `json:"total"`
+	Result     bool        `json:"result,string"`
+	Orders     interface{} `json:"orders"`
+	ErrorCode  int64       `json:"error_code"`
 }
 
 // ExchangeRateResponse stores information about USD-RMB rate
@@ -134,12 +134,6 @@ type WithdrawConfigResponse struct {
 	Minimum     string `json:"min"`
 	CanWithDraw bool   `json:"canWithDraw"`
 	Fee         string `json:"fee"`
-}
-
-// WithdrawConfigRespFee contains info about the fee
-type WithdrawConfigRespFee struct {
-	Fee  float64 `json:"fee,string"`
-	Type string  `json:"type"`
 }
 
 // WithdrawResponse stores info about something

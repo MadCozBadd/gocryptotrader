@@ -1,6 +1,7 @@
 package lbank
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -35,20 +36,13 @@ func (l *Lbank) Run() {
 	if err != nil {
 		log.Errorf("%s Failed to get available symbols.\n", l.GetName())
 	} else {
-		forceUpdate := false
-		if common.StringDataCompare(l.AvailablePairs.Strings(), "btc_usdt") {
-			log.Warnf("%s contains invalid pair, forcing upgrade of available currencies.\n",
-				l.GetName())
-			forceUpdate = true
-		}
-
 		var newExchangeCurrencies currency.Pairs
 		for _, p := range exchangeCurrencies {
 			newExchangeCurrencies = append(newExchangeCurrencies,
 				currency.NewPairFromString(p))
 		}
 
-		err = l.UpdateCurrencies(newExchangeCurrencies, false, forceUpdate)
+		err = l.UpdateCurrencies(newExchangeCurrencies, false, true)
 		if err != nil {
 			log.Errorf("%s Failed to update available currencies %s.\n", l.GetName(), err)
 		}
@@ -406,13 +400,19 @@ func (l *Lbank) GetFeeByType(feeBuilder *exchange.FeeBuilder) (float64, error) {
 			return resp, err
 		}
 
-		return withdrawalFee.Fee, nil
+		resp, err := strconv.ParseFloat(withdrawalFee[0].Fee, 64)
+		if err != nil {
+			return resp, err
+		}
 	}
 	return resp, nil
 }
 
 // GetAllOpenOrderID returns map[string][]string -> map[currencypair][]orderIDs
 func (l *Lbank) GetAllOpenOrderID() ([]GetAllOpenIDResp, error) {
+	// does not return total value - REDO
+
+	// Lbank exchange raw response: {"result":"true","page_length":200,"orders":"","current_page":1}
 	allPairs := l.GetEnabledCurrencies()
 	var resp []GetAllOpenIDResp
 
@@ -426,6 +426,7 @@ func (l *Lbank) GetAllOpenOrderID() ([]GetAllOpenIDResp, error) {
 		var x int64
 		tempData, err := strconv.ParseInt(tempResp.Total, 10, 64)
 		if err != nil {
+			// error here
 			return resp, err
 		}
 		if tempData%200 != 0 {
@@ -446,9 +447,15 @@ func (l *Lbank) GetAllOpenOrderID() ([]GetAllOpenIDResp, error) {
 			}
 
 			for c := int64(0); c < d; c++ {
+				stuff, ok := tempResp.Orders.([]OrderResponse)
+				if !ok {
+					return resp, errors.New("bla bla bla")
+				}
+				log.Println(stuff)
 				resp = append(resp, GetAllOpenIDResp{
 					CurrencyPair: pair.String(),
-					OrderID:      tempResp.Orders[c].OrderID})
+					// OrderID:      tempResp.Orders[c].OrderID,
+				})
 			}
 		}
 	}

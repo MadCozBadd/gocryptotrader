@@ -114,9 +114,11 @@ func (l *Lbank) Setup(exch *config.ExchangeConfig) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = l.loadPrivKey()
-		if err != nil {
-			log.Fatal(err)
+		if l.AuthenticatedAPISupport {
+			err = l.loadPrivKey()
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 	}
 }
@@ -335,24 +337,13 @@ func (l *Lbank) USD2RMBRate() (ExchangeRateResponse, error) {
 }
 
 // GetWithdrawConfig gets information about withdrawals
-func (l *Lbank) GetWithdrawConfig(assetCode string) (WithdrawConfigRespFee, error) {
-	var finalResp WithdrawConfigRespFee
+func (l *Lbank) GetWithdrawConfig(assetCode string) ([]WithdrawConfigResponse, error) {
 	var resp []WithdrawConfigResponse
 	params := url.Values{}
-	if assetCode != "" {
-		params.Set("assetCode", assetCode)
-	}
+	params.Set("assetCode", assetCode)
 	path := fmt.Sprintf("%s/v%s/%s?%s", lbankAPIURL, lbankAPIVersion, lbankWithdrawConfig, params.Encode())
-	err := l.SendHTTPRequest(path, &resp)
-	if err != nil {
-		return finalResp, err
-	}
-	err = json.Unmarshal([]byte(resp[0].Fee), &finalResp)
-	if err != nil {
-		return finalResp, err
-	}
+	return resp, l.SendHTTPRequest(path, &resp)
 
-	return finalResp, nil
 }
 
 // Withdraw sends a withdrawal request
@@ -455,7 +446,7 @@ func (l *Lbank) loadPrivKey() error {
 
 func (l *Lbank) sign(data string) (string, error) {
 	if l.privateKey == nil {
-		return "", errors.New("p cannot be nil")
+		return "", errors.New("private key not loaded")
 	}
 	md5hash := common.GetMD5([]byte(data))
 	m := common.StringToUpper(common.HexEncodeToString(md5hash))
