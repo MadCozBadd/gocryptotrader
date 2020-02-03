@@ -1,18 +1,29 @@
 package news
 
-// Query stores stuff
+// BiggerQuery does stuff
+type BiggerQuery struct {
+	Rss interface{} `xml:"rss"`
+}
+
+// // Channel stores stuff
+// type Channel struct {
+// 	Titles string   `xml:"title"`
+// 	Links  []string `xml:"link"`
+// 	Hello  string   `xml:"hello"`
+// }
+
+// Query stores query info
 type Query struct {
-	Chan Channel `xml:"Channel"`
+	Channel Channel `xml:"channel"`
 }
 
-// Link stores data in link
-type Link struct {
-	Link string `xml:"link"`
-}
-
-// Channel stores stuff
+// Channel stores channel info
 type Channel struct {
+	Items []Item `xml:"item"`
+}
+
+// Item stores items
+type Item struct {
 	Title string `xml:"title"`
-	Links []Link
-	Hello string `xml:"hello"`
+	Link  string `xml:"link"`
 }

@@ -47,13 +47,16 @@ func Check() error {
 	<title>test</title>
 			<hello>test123</hello>
 	<link>why</link>
-	<link>this is a test</link>
+	<link>thisisatest</link>
 	</Channel>
 	`)
-	var q Query
-	xml.Unmarshal(XML, &q.Chan)
-
-	fmt.Println(q.Chan)
+	var c Channel
+	err := xml.Unmarshal(XML, &c)
+	if err != nil {
+		return err
+	}
+	log.Println(XML)
+	fmt.Println(c)
 	return nil
 }
 
@@ -64,7 +67,10 @@ func CheckOtherThings() error {
 		return err
 	}
 	var q Query
-	xml.Unmarshal([]byte(a), &q.Chan)
-	log.Println(q.Chan)
+	err = xml.Unmarshal([]byte(a), &q)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(q)
 	return nil
 }
