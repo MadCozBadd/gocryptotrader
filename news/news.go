@@ -62,15 +62,23 @@ func Check() error {
 
 // CheckOtherThings checks other things
 func CheckOtherThings() error {
-	a, err := common.SendHTTPRequest(http.MethodGet, "https://coingape.com/feed/", nil, nil)
-	if err != nil {
-		return err
+	var allItems []Item
+	allPaths := []string{pathBitcoinist, pathCNN, pathCoindesk, pathCoingape,
+		pathCointelegraph, pathMicky, pathNulltx}
+	for z := range allPaths {
+		a, err := common.SendHTTPRequest(http.MethodGet, allPaths[z], nil, nil)
+		if err != nil {
+			return err
+		}
+		var q Query
+		err = xml.Unmarshal([]byte(a), &q)
+		if err != nil {
+			log.Fatal(err)
+		}
+		for y := range q.Channel.Items {
+			allItems = append(allItems, q.Channel.Items[y])
+		}
 	}
-	var q Query
-	err = xml.Unmarshal([]byte(a), &q)
-	if err != nil {
-		log.Println(err)
-	}
-	log.Println(q)
+	log.Println(allItems)
 	return nil
 }
