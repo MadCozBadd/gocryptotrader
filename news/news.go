@@ -18,6 +18,7 @@ const (
 	pathMicky         = "https://micky.com.au/feed/"
 	pathCNN           = "https://www.ccn.com/feed"
 	pathNulltx        = "https://nulltx.com/feed/"
+	pathSendMessage   = "https://slack.com/api/chat.postMessage"
 )
 
 // GetData gets data from a given path
@@ -81,4 +82,14 @@ func CheckOtherThings() error {
 	}
 	log.Println(allItems)
 	return nil
+}
+
+// SendMessage sends message to the slack channel
+func SendMessage(message string) error {
+	headers := make(map[string]string)
+	headers["Content-type"] = "application/json"
+	headers["Authorization"] = "Bearer YOUR_TOKEN_HERE"
+	a, err := common.SendHTTPRequest(http.MethodPost, pathSendMessage, headers, nil)
+	log.Println(a)
+	return err
 }
