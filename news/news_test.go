@@ -21,3 +21,10 @@ func TestCheckOtherThings(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestSendMessage(t *testing.T) {
+	err := SendMessage("HELLLLLLLooooooooooo")
+	if err != nil {
+		t.Error(err)
+	}
+}

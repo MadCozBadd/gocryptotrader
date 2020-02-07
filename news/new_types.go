@@ -5,13 +5,6 @@ type BiggerQuery struct {
 	Rss interface{} `xml:"rss"`
 }
 
-// // Channel stores stuff
-// type Channel struct {
-// 	Titles string   `xml:"title"`
-// 	Links  []string `xml:"link"`
-// 	Hello  string   `xml:"hello"`
-// }
-
 // Query stores query info
 type Query struct {
 	Channel Channel `xml:"channel"`
@@ -26,4 +19,10 @@ type Channel struct {
 type Item struct {
 	Title string `xml:"title"`
 	Link  string `xml:"link"`
+}
+
+// AuthParams has auth request params
+type AuthParams struct {
+	Channel string `json:"channel"`
+	Text    string `json:"text"`
 }

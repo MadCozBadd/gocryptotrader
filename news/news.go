@@ -1,6 +1,8 @@
 package news
 
 import (
+	"bytes"
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"log"
@@ -80,16 +82,22 @@ func CheckOtherThings() error {
 			allItems = append(allItems, q.Channel.Items[y])
 		}
 	}
-	log.Println(allItems)
-	return nil
+	return SendMessage(fmt.Sprintf("%s:\n%s", allItems[0].Title, allItems[0].Link))
 }
 
 // SendMessage sends message to the slack channel
 func SendMessage(message string) error {
 	headers := make(map[string]string)
 	headers["Content-type"] = "application/json"
-	headers["Authorization"] = "Bearer YOUR_TOKEN_HERE"
-	a, err := common.SendHTTPRequest(http.MethodPost, pathSendMessage, headers, nil)
+	headers["Authorization"] = "NO"
+	var params AuthParams
+	params.Channel = "GTP4246MB"
+	params.Text = message
+	b, err := json.Marshal(params)
+	if err != nil {
+		return err
+	}
+	a, err := common.SendHTTPRequest(http.MethodPost, pathSendMessage, headers, bytes.NewBuffer(b))
 	log.Println(a)
 	return err
 }
