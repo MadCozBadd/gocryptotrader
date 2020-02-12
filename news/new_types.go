@@ -1,5 +1,9 @@
 package news
 
+import (
+	"time"
+)
+
 // BiggerQuery does stuff
 type BiggerQuery struct {
 	Rss interface{} `xml:"rss"`
@@ -17,8 +21,16 @@ type Channel struct {
 
 // Item stores items
 type Item struct {
-	Title string `xml:"title"`
-	Link  string `xml:"link"`
+	Title   string `xml:"title"`
+	Link    string `xml:"link"`
+	PubTime string `xml:"pubDate"`
+}
+
+// Storage stores items from a site
+type Storage struct {
+	Path       string
+	LastUpdate time.Time
+	Items      []Item
 }
 
 // AuthParams has auth request params

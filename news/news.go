@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"regexp"
+	"time"
 
 	"github.com/thrasher-corp/gocryptotrader/common"
 )
@@ -18,57 +18,30 @@ const (
 	pathCoindesk      = "https://www.coindesk.com/feed"
 	pathCointelegraph = "https://cointelegraph.com/feed"
 	pathMicky         = "https://micky.com.au/feed/"
-	pathCNN           = "https://www.ccn.com/feed"
+	pathCCN           = "https://www.ccn.com/feed"
 	pathNulltx        = "https://nulltx.com/feed/"
 	pathSendMessage   = "https://slack.com/api/chat.postMessage"
 )
 
-// GetData gets data from a given path
-func GetData() error {
-	regexpStr := "<title>[^\n]+</title>\n	<link>"
-	r, err := regexp.Compile(regexpStr)
-	if err != nil {
-		return err
-	}
-	allPaths := []string{pathBitcoinist}
-	for x := range allPaths {
-		a, err := common.SendHTTPRequest(http.MethodGet, allPaths[x], nil, nil)
+func main() {
+	for {
+		err := CheckOtherThings()
 		if err != nil {
-			return err
+			log.Fatal(err)
 		}
-		arr := r.FindAllString(a, -1)
-		log.Println(arr)
-		log.Println(a)
+		fmt.Printf("HELLLLLLLLOOOOOOOOOOOO\n\n\n\n")
+		time.Sleep(time.Minute)
 	}
-	return nil
-}
-
-// Check checks things
-func Check() error {
-	var XML = []byte(`
-	<Channel>
-	<title>test</title>
-			<hello>test123</hello>
-	<link>why</link>
-	<link>thisisatest</link>
-	</Channel>
-	`)
-	var c Channel
-	err := xml.Unmarshal(XML, &c)
-	if err != nil {
-		return err
-	}
-	log.Println(XML)
-	fmt.Println(c)
-	return nil
 }
 
 // CheckOtherThings checks other things
 func CheckOtherThings() error {
-	var allItems []Item
-	allPaths := []string{pathBitcoinist, pathCNN, pathCoindesk, pathCoingape,
+	updateTimes := make(map[string]string)
+	allPaths := []string{pathBitcoinist, pathCCN, pathCoindesk, pathCoingape,
 		pathCointelegraph, pathMicky, pathNulltx}
 	for z := range allPaths {
+		var newStorage Storage
+		newStorage.Path = allPaths[z]
 		a, err := common.SendHTTPRequest(http.MethodGet, allPaths[z], nil, nil)
 		if err != nil {
 			return err
@@ -79,10 +52,25 @@ func CheckOtherThings() error {
 			log.Fatal(err)
 		}
 		for y := range q.Channel.Items {
-			allItems = append(allItems, q.Channel.Items[y])
+			newStorage.Items = append(newStorage.Items, q.Channel.Items[y])
 		}
+		_, ok := updateTimes[allPaths[z]]
+		if ok {
+			for x := range newStorage.Items {
+				if newStorage.Items[x].PubTime == updateTimes[allPaths[z]] {
+					newStorage.Items = newStorage.Items[:x]
+				}
+			}
+		}
+		for y := range newStorage.Items {
+			stuff := fmt.Sprintf("%s:\n%s",
+				newStorage.Items[y].Title,
+				newStorage.Items[y].Link)
+			fmt.Println(stuff)
+		}
+		updateTimes[allPaths[z]] = newStorage.Items[0].PubTime
 	}
-	return SendMessage(fmt.Sprintf("%s:\n%s", allItems[0].Title, allItems[0].Link))
+	return nil
 }
 
 // SendMessage sends message to the slack channel
@@ -97,7 +85,10 @@ func SendMessage(message string) error {
 	if err != nil {
 		return err
 	}
-	a, err := common.SendHTTPRequest(http.MethodPost, pathSendMessage, headers, bytes.NewBuffer(b))
+	a, err := common.SendHTTPRequest(http.MethodPost,
+		pathSendMessage,
+		headers,
+		bytes.NewBuffer(b))
 	log.Println(a)
 	return err
 }

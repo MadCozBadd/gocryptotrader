@@ -7,6 +7,8 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/thrasher-corp/gocryptotrader/news"
+
 	"github.com/thrasher-corp/gocryptotrader/common"
 	"github.com/thrasher-corp/gocryptotrader/config"
 	"github.com/thrasher-corp/gocryptotrader/core"
@@ -116,6 +118,14 @@ func main() {
 		log.Errorf(log.Global, "Unable to start bot engine. Error: %s\n", err)
 		os.Exit(1)
 	}
+
+	go func() {
+		err := news.CheckOtherThings()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}()
 
 	interrupt := signaler.WaitForInterrupt()
 	log.Infof(log.Global, "Captured %v, shutdown requested.\n", interrupt)
