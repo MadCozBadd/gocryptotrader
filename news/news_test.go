@@ -15,3 +15,17 @@ func TestSendMessage(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestWriteFile(t *testing.T) {
+	err := WriteFile([]string{"bitcoin", "litecoin", "ethereum"})
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestReadFile(t *testing.T) {
+	_, err := ReadFile()
+	if err != nil {
+		t.Error(err)
+	}
+}
