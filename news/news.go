@@ -39,6 +39,7 @@ func CheckOtherThings() error {
 	updateTimes := make(map[string]string)
 	allPaths := []string{pathBitcoinist, pathCCN, pathCoindesk, pathCoingape,
 		pathCointelegraph, pathMicky, pathNulltx}
+
 	for z := range allPaths {
 		var newStorage Storage
 		newStorage.Path = allPaths[z]
