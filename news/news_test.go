@@ -17,14 +17,19 @@ func TestSendMessage(t *testing.T) {
 }
 
 func TestWriteFile(t *testing.T) {
-	err := WriteFile([]string{"bitcoin", "litecoin", "ethereum"})
+	err := WriteFile([]string{"hello"}, "checklist.json")
 	if err != nil {
 		t.Error(err)
+	}
+	words, err := ReadFile("checklist.json")
+	if words[len(words)-1] != "hello" {
+		t.Fatal("hello wasn't successfully added to the word list")
 	}
 }
 
 func TestReadFile(t *testing.T) {
-	_, err := ReadFile()
+	a, err := ReadFile("checklist.json")
+	t.Log(a)
 	if err != nil {
 		t.Error(err)
 	}

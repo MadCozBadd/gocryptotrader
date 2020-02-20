@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/thrasher-corp/gocryptotrader/common"
@@ -20,6 +22,7 @@ const (
 	pathMicky         = "https://micky.com.au/feed/"
 	pathCCN           = "https://www.ccn.com/feed"
 	pathNulltx        = "https://nulltx.com/feed/"
+	pathCryptoDaily   = "https://cryptodaily.co.uk/feed/"
 	pathSendMessage   = "https://slack.com/api/chat.postMessage"
 )
 
@@ -38,7 +41,7 @@ func main() {
 func CheckOtherThings() error {
 	updateTimes := make(map[string]string)
 	allPaths := []string{pathBitcoinist, pathCCN, pathCoindesk, pathCoingape,
-		pathCointelegraph, pathMicky, pathNulltx}
+		pathCointelegraph, pathMicky, pathNulltx, pathCryptoDaily}
 
 	for z := range allPaths {
 		var newStorage Storage
@@ -63,11 +66,20 @@ func CheckOtherThings() error {
 				}
 			}
 		}
-		for y := range newStorage.Items {
-			stuff := fmt.Sprintf("%s:\n%s",
-				newStorage.Items[y].Title,
-				newStorage.Items[y].Link)
-			fmt.Println(stuff)
+		words, err := ReadFile("checklist.json")
+		if err != nil {
+			return err
+		}
+		for o := range words {
+			for y := range newStorage.Items {
+				tempStrings := strings.Split(newStorage.Items[y].Title, " ")
+				if common.StringDataCompareInsensitive(tempStrings, words[o]) {
+					stuff := fmt.Sprintf("%s:\n%s",
+						newStorage.Items[y].Title,
+						newStorage.Items[y].Link)
+					fmt.Println(stuff)
+				}
+			}
 		}
 		updateTimes[allPaths[z]] = newStorage.Items[0].PubTime
 	}
@@ -92,4 +104,32 @@ func SendMessage(message string) error {
 		bytes.NewBuffer(b))
 	log.Println(a)
 	return err
+}
+
+// WriteFile write to the json file
+func WriteFile(moreWords []string, fileName string) error {
+	words, err := ReadFile(fileName)
+	if err != nil {
+		return err
+	}
+	for x := range moreWords {
+		if !common.StringDataCompareInsensitive(words, moreWords[x]) {
+			words = append(words, moreWords[x])
+		}
+	}
+	file, err := json.MarshalIndent(words, "", " ")
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(fileName, file, 0770)
+}
+
+// ReadFile reads the file
+func ReadFile(fileName string) ([]string, error) {
+	bytes, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		return nil, err
+	}
+	var words []string
+	return words, json.Unmarshal(bytes, &words)
 }
