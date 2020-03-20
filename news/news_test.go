@@ -34,3 +34,10 @@ func TestReadFile(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestGetWebData(t *testing.T) {
+	err := GetWebData("opensearch", "search", "xoxb-440580558454-938888001860-VtKNurF377HhXcT0yU1WXMLb", "news-alerts", "Adam Ghule")
+	if err != nil {
+		t.Error(err)
+	}
+}

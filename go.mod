@@ -5,6 +5,7 @@ go 1.12
 require (
 	github.com/d5/tengo/v2 v2.0.2
 	github.com/gofrs/uuid v3.2.0+incompatible
+	github.com/golang-basic/go-curl v0.0.0-20140606065700-84c935eb4eb4
 	github.com/golang/protobuf v1.3.2
 	github.com/google/go-querystring v1.0.0
 	github.com/gorilla/mux v1.7.3
