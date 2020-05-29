@@ -8,11 +8,13 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/url"
 	"strings"
 	"time"
 
+	"github.com/thrasher-corp/gocryptotrader/communications/slack"
+
 	"github.com/thrasher-corp/gocryptotrader/common"
+	"github.com/thrasher-corp/gocryptotrader/config"
 )
 
 const (
@@ -25,14 +27,12 @@ const (
 	pathNulltx        = "https://nulltx.com/feed/"
 	pathCryptoDaily   = "https://cryptodaily.co.uk/feed/"
 	pathSendMessage   = "https://slack.com/api/chat.postMessage"
-	slackWebhook      = "https://hooks.slack.com/services/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"
-	wikiLang          = "en"
-	searchLimit       = "4"
-	userAgent         = "news-alerts/1.0 (https://github.com/madcozbadd/news-alerts; adamghule@gmail.com)"
 )
 
 func main() {
 	for {
+		var cfg *config.CommunicationsConfig
+		cfg.SlackConfig.TargetChannel = "nope"
 		err := CheckOtherThings()
 		if err != nil {
 			log.Fatal(err)
@@ -139,27 +139,14 @@ func ReadFile(fileName string) ([]string, error) {
 	return words, json.Unmarshal(bytes, &words)
 }
 
-// GetWebData gets web data
-func GetWebData(command, text, token, channelID, username string) error {
-	var result interface{}
-	params := url.Values{}
-	params.Set("command", command)
-	params.Set("text", text)
-	params.Set("token", token)
-	params.Set("channel_id", channelID)
-	params.Set("user_name", username)
-	var wikiURL string
-	wikiURL = "https://" + wikiLang + ".wikipedia.org/w/api.php?action=opensearch&search=" + text + "&format=json&limit=" + searchLimit
-	err := common.SendHTTPGetRequest(wikiURL, false, true, &result)
-	if err != nil {
-		return err
+// HandleMessage handles slack message
+func HandleMessage(msg slack.Message) error {
+	if strings.Contains(msg.Text, "!add") {
+		wordsStr := strings.TrimLeft(msg.Text, "!add ")
+		fmt.Printf("HELLOOO\n\n\n")
+		fmt.Println(wordsStr)
+		words := strings.Split(wordsStr, ",")
+		return WriteFile(words, "checklist.json")
 	}
-	log.Println(result)
-	// log.Println(result)
-	// ch := curl.EasyInit()
-	// ch.Setopt(curl.OPT_TRANSFERTEXT, &ch)
-	// ch.Setopt(curl.OPT_USERAGENT, &ch)
-	// ch.Setopt(curl.OPT_FOLLOWLOCATION, &ch)
-	// chResp := curl.
 	return nil
 }

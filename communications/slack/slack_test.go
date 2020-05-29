@@ -2,6 +2,7 @@ package slack
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/thrasher-corp/gocryptotrader/communications/base"
@@ -156,10 +157,12 @@ func TestGetChannelIDByName(t *testing.T) {
 }
 
 func TestGetUsersInGroup(t *testing.T) {
-	username := s.GetUsersInGroup("supergroup")
+	username := s.GetUsersInGroup("thrasher-corporation.slack.com")
 	if len(username) != 0 {
 		t.Error("slack GetUsersInGroup() error")
 	}
+
+	fmt.Println(username)
 
 	s.Details.Groups = append(s.Details.Groups, group{
 		Name:    "three guys",

@@ -1,6 +1,10 @@
 package news
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/thrasher-corp/gocryptotrader/communications/slack"
+)
 
 func TestCheckOtherThings(t *testing.T) {
 	err := CheckOtherThings()
@@ -35,8 +39,10 @@ func TestReadFile(t *testing.T) {
 	}
 }
 
-func TestGetWebData(t *testing.T) {
-	err := GetWebData("opensearch", "search", "xoxb-440580558454-938888001860-VtKNurF377HhXcT0yU1WXMLb", "news-alerts", "Adam Ghule")
+func TestHandleMessage(t *testing.T) {
+	var s slack.Message
+	s.Text = "!add hi,i,love,fomo"
+	err := HandleMessage(s)
 	if err != nil {
 		t.Error(err)
 	}
